@@ -7,3 +7,5 @@ __pycache__/
 
 # Large data files
 data/*.csv
+# Large data files
+data/*
