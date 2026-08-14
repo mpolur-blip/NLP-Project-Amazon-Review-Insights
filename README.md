@@ -62,3 +62,37 @@ Python, pandas, spaCy, Hugging Face Transformers, scikit-learn, gensim, BERTopic
 ├── outputs/       → saved visualizations (LDA topic map, etc.)
 └── README.md
 ```
+## Semantic Search (Added Feature)
+
+Extended the project with a semantic search layer on top of the cleaned review dataset, 
+enabling search by *meaning* rather than exact keyword matches.
+
+**Stack:** `sentence-transformers` (all-MiniLM-L6-v2) for embeddings, FAISS (`IndexFlatIP`, 
+cosine similarity) for nearest-neighbor search, Streamlit for the interactive UI.
+
+**How it works:** Each of the ~34,600 cleaned reviews is embedded into a 384-dimensional 
+vector. At query time, the search string is embedded the same way, and FAISS returns the 
+most similar reviews by cosine similarity — surfacing relevant results even when the query 
+shares no words with the matched review.
+
+### Example queries
+
+| Query | Top match | Similarity |
+|---|---|---|
+| "screen freezes and stops responding" | *"Freeze frequently... No way to trouble shoot or repair it..."* | 0.61 |
+| "battery drains too fast" | *"Battery seems to drain quickly. Otherwise very happy with this device!"* | 0.67 |
+| "good tablet for young children" | *"Great simple tablet for younger children to use..."* | 0.90 |
+| "arrived broken right out of the box" | *"Item arrived as described. No damages and fast shipping."* (mismatch — see note) | 0.51 |
+
+**A note on limitations:** the last query shows semantic search isn't infallible — it 
+partially latched onto "box" as a product term (Fire TV Stick reviews) rather than the 
+"arrived damaged" intent, and the genuinely relevant review only ranked 3rd. Compound 
+queries mixing multiple concepts (condition + packaging + a term that's also a product 
+name in the corpus) can confuse the embedding.
+
+### Running the app
+\`\`\`bash
+streamlit run app.py
+\`\`\`
+
+![Semantic search demo](outputs/semantic_search_demo.png)
